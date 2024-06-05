@@ -1,5 +1,4 @@
-class Text2Tana {
-  
+export default class Text2Tana {
   // class init //
 
   // standard Tana schema
@@ -91,13 +90,17 @@ class Text2Tana {
     if (typeof urls[0][0] !== 'undefined') output.urls = urls.map(u => u[0])
 
     const supertags = extract(
-      `(\\b|\\s)${this.settings.symbols.supertag}(${Object.keys(this.schema.supertags).join('|')})\\b`,
+      `(\\b|\\s)${this.settings.symbols.supertag}(${Object.keys(this.schema.supertags).join(
+        '|'
+      )})\\b`,
       input
     )
     if (typeof supertags[0][1] !== 'undefined') output.supertags = supertags.map(t => t[1])
 
     const fields_with_nodes = extract(
-      `\\b(${Object.keys(this.schema.fields).join('|')})${this.settings.symbols.field}(${Object.keys(this.schema.nodes).join('|')})`, 
+      `\\b(${Object.keys(this.schema.fields).join('|')})${
+        this.settings.symbols.field
+      }(${Object.keys(this.schema.nodes).join('|')})`,
       input
     )
     if (typeof fields_with_nodes[0][1] !== 'undefined')
@@ -108,5 +111,4 @@ class Text2Tana {
 
     return output
   }
-
 }
