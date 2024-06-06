@@ -32,14 +32,14 @@ const input = 'Read this blog post https://medium.com/@user/article #task projec
 const payload = tana.api_payload(input)
 ```
 This text:
-> Read this blog post https://medium.com/@user/article #task project:myproject
+> Read this blog post https<area>://medium.com/@user/article #task project:myproject
 
 Becomes these nodes:
 > * Inbox  
 >   …
 >   * Read this blog post _#task_  
 >     &nbsp;&nbsp; `>` Project &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _My project_
->     * https://medium.com/@user/article
+>     * https<area>://medium.com/@user/article
 
 ```js
 const input = '@myproject Investigate a complex subject #task'
