@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/psu/text2tana/issues"
   },
-  "homepage": "https://github.com/psu/text2tana#readme"
+  "homepage": "https://github.com/psu/text2tana#readme",
+  "dependencies": {
+    "text2tana": "^1.0.0"
+  }
 }
