@@ -1,79 +1,58 @@
-export default class Text2Tana {
-  // class init //
+const Text2Tana = function (schema = {}, settings = {}) {
+  // init //
 
   // standard Tana schema
-  schema = {
+  const standard_schema = {
     nodes: { inbox: 'INBOX', schema: 'SCHEMA', library: 'LIBRARY' },
     supertags: {},
     fields: { due: 'SYS_A61' },
   }
   // Text2Tana settings
-  settings = {
+  const standard_settings = {
     symbols: { supertag: '#', field: ':', node: '@' },
     default: { target: 'inbox', type: 'plain' },
   }
 
   // merge schema and settings
-  constructor(schema = {}, settings = {}) {
-    this.schema = {
-      nodes: { ...this.schema.nodes, ...schema.nodes },
-      supertags: { ...this.schema.supertags, ...schema.supertags },
-      fields: { ...this.schema.fields, ...schema.fields },
-    }
-    this.settings = {
-      symbols: { ...this.settings.symbols, ...settings.symbols },
-      default: { ...this.settings.default, ...settings.default },
-    }
+  schema = {
+    nodes: { ...standard_schema.nodes, ...schema.nodes },
+    supertags: { ...standard_schema.supertags, ...schema.supertags },
+    fields: { ...standard_schema.fields, ...schema.fields },
+  }
+  settings = {
+    symbols: { ...standard_settings.symbols, ...settings.symbols },
+    default: { ...standard_settings.default, ...settings.default },
   }
 
   // core //
 
   // construct a complete Tana payload from a text
-  api_payload(one_line) {
-    const o = this.parse(one_line)
-    const targetNodeId = this.schema.nodes[o.target || this.settings.default.target]
-    const nodes = [this.api_node(o)]
+  const api_payload = one_line => {
+    const o = parse(one_line)
+    const targetNodeId = schema.nodes[o.target || settings.default.target]
+    const nodes = [api_node(o)]
     return { targetNodeId, nodes }
   }
 
-  // input: a node (possibly with children) in the "natural language object" format (returned from this.parse)
-  // output: a node and its children in Tana API format, with the IDs and settings from this.schema applied
-  api_node(o) {
+  // input: a node (possibly with children) in the "natural language object" format (returned from parse)
+  // output: a node and its children in Tana API format, with the IDs and settings from schema applied
+  const api_node = o => {
     const name = o.name || ''
-    const dataType = o.type || this.settings.default.type
-    const supertags = (o.supertags || []).map(t => ({ id: this.schema.supertags[t] }))
+    const dataType = o.type || settings.default.type
+    const supertags = (o.supertags || []).map(t => ({ id: schema.supertags[t] }))
     const fields = (o.fields || []).map(f => ({
-      attributeId: this.schema.fields[f.field],
+      attributeId: schema.fields[f.field],
       type: 'field',
-      children: [{ id: this.schema.nodes[f.value], dataType: 'reference' }],
+      children: [{ id: schema.nodes[f.value], dataType: 'reference' }],
     }))
     const urls = (o.urls || []).map(u => ({ name: u, dataType: 'url' }))
     return { name, dataType, supertags, children: [...fields, ...urls] }
   }
 
   // parse a text string to a "natural language object"
-  parse(input_text) {
+  const parse = input_text => {
     const input = { text: ` ${input_text} ` }
     const output = {}
-
-    // does two things: returns the values from matched groups and strips the corresponding full match from input text
-    // only regexp groups are returned, if the regexp doesn't have groups, the full match is used
-    // input: a regexp *string* and an object with the property text
-    // return: a two-level array with matches as level 1 and groups as level 2
-    function extract(regexp, input) {
-      let groups
-      const all = Array.from(input.text.matchAll(new RegExp(regexp, 'ig'))).map(m =>
-        m.slice(0, m.length)
-      )
-      if (all.length > 0) {
-        groups = []
-        all.forEach(a => {
-          groups.push(a.slice(a.length === 1 ? 0 : 1, a.length))
-          input.text = input.text.replace(a[0], ' ') // modify the referenced object
-        })
-      }
-      return groups || [[]]
-    }
 
     // extract from input. current support:
     //   target     "@node" (only if it appears in the beginning)
@@ -81,7 +60,7 @@ export default class Text2Tana {
     //   supertags  " #supertag"
     //   fields     "field:value"
     const target = extract(
-      `^\\s*${this.settings.symbols.node}(${Object.keys(this.schema.nodes).join('|')})\\b`,
+      `^\\s*${settings.symbols.node}(${Object.keys(schema.nodes).join('|')})\\b`,
       input
     )
     if (typeof target[0][0] !== 'undefined') output.target = target[0][0]
@@ -90,17 +69,15 @@ export default class Text2Tana {
     if (typeof urls[0][0] !== 'undefined') output.urls = urls.map(u => u[0])
 
     const supertags = extract(
-      `(\\b|\\s)${this.settings.symbols.supertag}(${Object.keys(this.schema.supertags).join(
-        '|'
-      )})\\b`,
+      `(\\b|\\s)${settings.symbols.supertag}(${Object.keys(schema.supertags).join('|')})\\b`,
       input
     )
     if (typeof supertags[0][1] !== 'undefined') output.supertags = supertags.map(t => t[1])
 
     const fields_with_nodes = extract(
-      `\\b(${Object.keys(this.schema.fields).join('|')})${
-        this.settings.symbols.field
-      }(${Object.keys(this.schema.nodes).join('|')})`,
+      `\\b(${Object.keys(schema.fields).join('|')})${settings.symbols.field}(${Object.keys(
+        schema.nodes
+      ).join('|')})`,
       input
     )
     if (typeof fields_with_nodes[0][1] !== 'undefined')
@@ -111,4 +88,27 @@ export default class Text2Tana {
 
     return output
   }
+
+  // does two things: returns the values from matched groups and strips the corresponding full match from input text
+  // only regexp groups are returned, if the regexp doesn't have groups, the full match is used
+  // input: a regexp *string* and an object with the property text
+  // return: a two-level array with matches as level 1 and groups as level 2
+  function extract(regexp, input) {
+    let groups
+    const all = Array.from(input.text.matchAll(new RegExp(regexp, 'ig'))).map(m =>
+      m.slice(0, m.length)
+    )
+    if (all.length > 0) {
+      groups = []
+      all.forEach(a => {
+        groups.push(a.slice(a.length === 1 ? 0 : 1, a.length))
+        input.text = input.text.replace(a[0], ' ') // modify the referenced object
+      })
+    }
+    return groups || [[]]
+  }
+
+  // return "public" functions
+  return { api_payload, api_node, parse, schema, settings }
 }
+export default Text2Tana
