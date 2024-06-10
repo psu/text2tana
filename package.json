@@ -1,6 +1,6 @@
 {
   "name": "text2tana",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Quick Text to JSON Tool for Tana Input API",
   "main": "text2tana.mjs",
   "type": "module",
@@ -20,8 +20,5 @@
   "bugs": {
     "url": "https://github.com/psu/text2tana/issues"
   },
-  "homepage": "https://github.com/psu/text2tana#readme",
-  "dependencies": {
-    "text2tana": "^1.0.0"
-  }
+  "homepage": "https://github.com/psu/text2tana#readme"
 }
