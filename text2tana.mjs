@@ -23,7 +23,6 @@ const Text2Tana = function (schema = {}, settings = {}) {
     symbols: { ...standard_settings.symbols, ...settings.symbols },
     default: { ...standard_settings.default, ...settings.default },
   }
-
   // core //
 
   // construct a complete Tana payload from a text
@@ -66,18 +65,17 @@ const Text2Tana = function (schema = {}, settings = {}) {
     if (typeof target[0][0] !== 'undefined') output.target = target[0][0]
 
     const urls = extract(`https?:\\/\\/\\S+`, input) // should be extracted before supertags
-    if (typeof urls[0][0] !== 'undefined') output.urls = urls.map(u => u[0])
-
+    if (urls[0].length > 0) output.urls = urls.map(u => u[0])
     const supertags = extract(
-      `(\\b|\\s)${settings.symbols.supertag}(${Object.keys(schema.supertags).join('|')})\\b`,
+      `${settings.symbols.supertag}(${Object.keys(schema.supertags).join('|')})\\b`,
       input
     )
-    if (typeof supertags[0][1] !== 'undefined') output.supertags = supertags.map(t => t[1])
+    if (typeof supertags[0] !== 'undefined') output.supertags = supertags.map(t => t[0])
 
     const fields_with_nodes = extract(
       `\\b(${Object.keys(schema.fields).join('|')})${settings.symbols.field}(${Object.keys(
         schema.nodes
-      ).join('|')})`,
+      ).join('|')})\\b`,
       input
     )
     if (typeof fields_with_nodes[0][1] !== 'undefined')
@@ -101,8 +99,10 @@ const Text2Tana = function (schema = {}, settings = {}) {
     if (all.length > 0) {
       groups = []
       all.forEach(a => {
-        groups.push(a.slice(a.length === 1 ? 0 : 1, a.length))
-        input.text = input.text.replace(a[0], ' ') // modify the referenced object
+        if (a[a.length - 1] != '') {
+          groups.push(a.slice(a.length === 1 ? 0 : 1, a.length))
+          input.text = input.text.replace(a[0], ' ') // modify the referenced object
+        }
       })
     }
     return groups || [[]]

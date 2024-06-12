@@ -1,6 +1,6 @@
 {
   "name": "text2tana",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Quick Text to JSON Tool for Tana Input API",
   "main": "text2tana.mjs",
   "type": "module",
