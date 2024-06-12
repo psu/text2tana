@@ -70,7 +70,8 @@ const Text2Tana = function (schema = {}, settings = {}) {
       `${settings.symbols.supertag}(${Object.keys(schema.supertags).join('|')})\\b`,
       input
     )
-    if (typeof supertags[0] !== 'undefined') output.supertags = supertags.map(t => t[0])
+    if (typeof supertags[0] !== 'undefined' && typeof supertags[0][0] !== 'undefined')
+      output.supertags = supertags.map(t => t[0])
 
     const fields_with_nodes = extract(
       `\\b(${Object.keys(schema.fields).join('|')})${settings.symbols.field}(${Object.keys(
@@ -83,7 +84,7 @@ const Text2Tana = function (schema = {}, settings = {}) {
 
     // remove consecutive spaces and trim
     output.name = input.text.replaceAll(/\s+/gi, ' ').trim()
-
+    console.log(output)
     return output
   }
 
