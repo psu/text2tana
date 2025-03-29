@@ -1,9 +1,3 @@
-<br>
-Quick Text to JSON Tool for Tana Input API
-<br>
-<br>
-<br>
-
 # Text2Tana
 
 ## Description
